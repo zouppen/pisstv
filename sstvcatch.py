@@ -34,7 +34,7 @@ def transmitImage(im):
 	draw.text((10, 10), mycallsign , (0,0,0), font=font)
 	draw.text((10, 220), localtime, (0,0,0), font=font)
 	im.save("/tmp/image.png")
-	command = "./pisstv /tmp/image.png 22050"
+	command = "./pisstvpp -pm1 -r22050 /tmp/image.png"
 	subprocess.call(command, shell=True)
 	command = "sudo ./pifm_sstv /tmp/image.png.wav"
 	subprocess.call(command, shell=True)
