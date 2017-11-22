@@ -125,6 +125,10 @@ int main(int argc, char *argv[]) {
     else if ( strcmp(protocol,"r36") == 0) {
         g_protocol = 8; //Robot 36
     }
+	 }
+    else if ( strcmp(protocol,"pd120") == 0) {
+        g_protocol = 10; //PD 120
+    }
     else {
         printf("Unrecognized protocol option %s, defaulting to Martin 1...\n\n", protocol);
         g_protocol = 44;
@@ -225,7 +229,10 @@ int main(int argc, char *argv[]) {
             break;
         case 8: //Robot 36
             buildaudio_r36();
-            break;
+        case 10: //PD 120
+            buildaudio_p120();
+            break;      break;
+		    
         default:
             printf("Something went horribly wrong: unknown protocol while building audio!\n");
             exit(2);
@@ -607,6 +614,102 @@ void buildaudio_r36 () {
     printf( "Done adding image to audio data.\n" ) ;    
     
 }  // end buildaudio_r36
+
+//Builds audio scan data for the PD 120.
+//Applicable to only PD 120.
+void buildaudio_pd120 () {
+
+    uint16_t x , y , k ;
+    uint32_t pixel1, pixel2;
+    uint8_t r1, g1, b1, r2, g2, b2, avgr, avgg, avgb;
+    uint8_t y1[640], y2[640], ry[640], by[640];
+
+    printf( "Adding image to audio data.\n" ) ;
+    
+    for ( y=0 ; y<496 ; y+=2 ) {
+    
+        // read image data
+        for ( x=0 ; x<640 ; x++ ) {
+
+            //even line pixel
+            pixel1 = gdImageGetTrueColorPixel( g_imgp, x, y ) ;
+            //odd line pixel 
+            pixel2 = gdImageGetTrueColorPixel( g_imgp, x, y+1) ;
+            
+            // get color data
+            r1 = gdTrueColorGetRed( pixel1 ); //first line (even) of red intensities
+            r2 = gdTrueColorGetRed( pixel2 ); //second line (odd) of red intensities
+            g1 = gdTrueColorGetGreen( pixel1 );
+            g2 = gdTrueColorGetGreen( pixel2 );
+            b1 = gdTrueColorGetBlue( pixel1 );
+            b2 = gdTrueColorGetBlue( pixel2 );
+
+            avgr = (uint8_t)( ((uint16_t)r1 + (uint16_t)r2) / 2 );
+
+            avgg = (uint8_t)( ((uint16_t)g1 + (uint16_t)g2) / 2 );
+
+            avgb = (uint8_t)( ((uint16_t)b1 + (uint16_t)b2) / 2 );
+
+            //Y value of even lines 
+            y1[x] = 16.0 + (0.003906 * ((65.738 * (float)r1) + (129.057 * (float)g1) + (25.064 * (float)b1)));
+            //Y value of odd lines
+            y2[x] = 16.0 + (0.003906 * ((65.738 * (float)r2) + (129.057 * (float)g2) + (25.064 * (float)b2)));
+            //R-Y value of the average of the two lines, to be transmitted even scans
+            ry[x] = 128.0 + (0.003906 * ((112.439 * (float)avgr) + (-94.154 * (float)avgg) + (-18.285 * (float)avgb)));
+            //B-Y value of the average of the two lines, to be transmitted odd scans
+            by[x] = 128.0 + (0.003906 * ((-37.945 * (float)avgr) + (-74.494 * (float)avgg) + (112.439 * (float)avgb)));
+
+        }
+        
+        //begin PD 120 code
+
+        //even lines    
+        //sync
+        playtone( 1200 , 9000 ) ;
+        //porch 
+        playtone( 1500 , 3000 ) ;
+        
+        //y scan, even, 88ms total, 640 points, 275us per pixel
+        for ( k = 0; k < 640; k++ ) {
+            playtone( toneval_yuv( y1[k] ) , 275 ) ;
+        }
+        
+        //even line seperator
+        playtone( 1500 , 4500 );
+        //porch
+        playtone( 1900 , 1500 );
+
+        //R-Y scan, 44ms total, 640 points, 137.5us per pixel
+        for ( k = 0; k < 640; k++ ) {
+            playtone( toneval_yuv( ry[k] ) , 137.5 );
+        }
+
+        //odd lines
+        // sync
+        playtone( 1200 , 9000 ) ;
+        // porch 
+        playtone( 1500 , 3000 ) ;
+
+        //y scan, odd, 88ms total, 640 points, 275us per pixel
+        for ( k = 0; k < 640; k++ ) {
+                playtone( toneval_yuv( y2[k] ) , 275 ) ;
+        }
+
+        //odd line seperator
+        playtone( 2300 , 4500 );
+        //porch
+        playtone( 1900 , 1500 );
+
+        //B-Y scan, 44ms total, 640 points, 137.5us per pixel
+        for ( k = 0; k < 640; k++) {
+            playtone( toneval_yuv( by[k] ) , 137.5);
+        }
+  
+    }  // end for y
+    
+    printf( "Done adding image to audio data.\n" ) ;    
+    
+}  // end buildaudio_pd120
 
 // addvistrailer -- Add tones for VIS trailer to audio stream.
 //                  More calls to playtone(). 
