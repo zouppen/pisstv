@@ -3,7 +3,7 @@ CFLAGS=-Wall
 LDFLAGS=-lm -lmagic -lgd
 
 pisstvpp: pisstvpp.c
-	$(CC) pisstvpp.c -o pisstvpp $(LDFLAGS)
+	$(CC) pisstv.c -o pisstv $(LDFLAGS)
 
 clean:
-	rm -f pisstvpp 
+	rm -f pisstv 
