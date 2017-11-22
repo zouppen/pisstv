@@ -1,4 +1,4 @@
-// PiSSTVpp
+// PiSSTV
 
 // 2013 Robert Marshall KI4MCW
 // 2014 Gerrit Polder, PA3BYA fixed header. 
