@@ -76,6 +76,7 @@ uint16_t toneval_yuv        (uint8_t colorval) ;
 void     buildaudio_m     (double pixeltime) ;
 void     buildaudio_s     (double pixeltime) ;
 void     buildaudio_r36     (void) ;
+void     buildaudio_pd120     (void) ;
 
 #ifdef AUDIO_AIFF
 void     writefile_aiff (void) ;
@@ -127,7 +128,7 @@ int main(int argc, char *argv[]) {
     }
 	 }
     else if ( strcmp(protocol,"pd120") == 0) {
-        g_protocol = 10; //PD 120
+        g_protocol = 95; //PD 120
     }
     else {
         printf("Unrecognized protocol option %s, defaulting to Martin 1...\n\n", protocol);
@@ -229,7 +230,7 @@ int main(int argc, char *argv[]) {
             break;
         case 8: //Robot 36
             buildaudio_r36();
-        case 10: //PD 120
+        case 95: //PD 120
             buildaudio_p120();
             break;      break;
 		    
@@ -566,8 +567,22 @@ void buildaudio_r36 () {
         }
         
         //begin robot 36 code
+// TIMING SEQUENCE
+// (1) Sync pulse 9.0ms 1200hz
+// (2) Sync porch 3.0ms 1500hz
+// (3) Y scan 88.0ms
+// (4) “Even” separator pulse 4.5ms 1500hz
+// (5) Porch 1.5ms 1900hz
+// (6) R-Y scan  44ms
+// (7) Sync pulse 9.0ms 1200hz
+// (8) Sync porch 3.0ms 1500hz
+// (9) Y scan 88.0ms
+// (10) “Odd” separator pulse 4.5ms 2300hz
+// (11) Porch 1.5ms 1900hz
+// (12) B-Y scan  44ms
+// Repeat the sequence above for 240 lines
 
-        //even lines    
+	 //even lines    
         //sync
         playtone( 1200 , 9000 ) ;
         //porch 
@@ -607,7 +622,7 @@ void buildaudio_r36 () {
         //B-Y scan, 44ms total, 320 points, 137.5us per pixel
         for ( k = 0; k < 320; k++) {
             playtone( toneval_yuv( by[k] ) , 137.5);
-        }
+}
   
     }  // end for y
     
@@ -649,7 +664,8 @@ void buildaudio_pd120 () {
             avgg = (uint8_t)( ((uint16_t)g1 + (uint16_t)g2) / 2 );
 
             avgb = (uint8_t)( ((uint16_t)b1 + (uint16_t)b2) / 2 );
-
+             
+            //For PD120 ???
             //Y value of even lines 
             y1[x] = 16.0 + (0.003906 * ((65.738 * (float)r1) + (129.057 * (float)g1) + (25.064 * (float)b1)));
             //Y value of odd lines
@@ -662,50 +678,40 @@ void buildaudio_pd120 () {
         }
         
         //begin PD 120 code
-
-        //even lines    
-        //sync
-        playtone( 1200 , 9000 ) ;
-        //porch 
-        playtone( 1500 , 3000 ) ;
-        
-        //y scan, even, 88ms total, 640 points, 275us per pixel
-        for ( k = 0; k < 640; k++ ) {
-            playtone( toneval_yuv( y1[k] ) , 275 ) ;
-        }
-        
-        //even line seperator
-        playtone( 1500 , 4500 );
-        //porch
-        playtone( 1900 , 1500 );
-
-        //R-Y scan, 44ms total, 640 points, 137.5us per pixel
-        for ( k = 0; k < 640; k++ ) {
-            playtone( toneval_yuv( ry[k] ) , 137.5 );
-        }
-
-        //odd lines
-        // sync
-        playtone( 1200 , 9000 ) ;
-        // porch 
-        playtone( 1500 , 3000 ) ;
-
-        //y scan, odd, 88ms total, 640 points, 275us per pixel
-        for ( k = 0; k < 640; k++ ) {
-                playtone( toneval_yuv( y2[k] ) , 275 ) ;
-        }
-
-        //odd line seperator
-        playtone( 2300 , 4500 );
-        //porch
-        playtone( 1900 , 1500 );
-
-        //B-Y scan, 44ms total, 640 points, 137.5us per pixel
-        for ( k = 0; k < 640; k++) {
-            playtone( toneval_yuv( by[k] ) , 137.5);
-        }
+// TIMING SEQUENCE
+// Note: two complete lines are shown.
+// (1) Sync pulse 20ms 1200hz
+// (2) Porch  2.080ms 1500hz
+// (3) Y scan (from odd line)
+// (4) R-Y scan averaged for two lines
+// (5) B-Y averaged for two lines
+// (6) Y scan (from even line)
+// Repeat until correct number of lines are transmitted for sub-mode.
   
-    }  // end for y
+        // (1)sync pulse
+        playtone( 1200 , 20000 ) ;
+        //porch 
+        playtone( 1500 , 2080 ) ;
+	    
+        //(3) y scan, odd, 121.6s total, 640 points, 190us per pixel
+        for ( k = 0; k < 640; k++ ) {
+                playtone( toneval_yuv( y2[k] ) , 190 ) ;
+        }
+
+        //(4) R-Y scan, 121.6ms total, 640 points, 190us per pixel
+        for ( k = 0; k < 640; k++ ) {
+            playtone( toneval_yuv( ry[k] ) , 190 );
+        } 
+
+        //(5) B-Y scan, 121.6ms total, 640 points, 190us per pixel
+        for ( k = 0; k < 640; k++) {
+            playtone( toneval_yuv( by[k] ) , 190);
+        }
+  	//(6) y scan, even, 121.6ms total, 640 points, 190us per pixel
+        for ( k = 0; k < 640; k++ ) {
+            playtone( toneval_yuv( y1[k] ) , 190 ) ;
+        }
+    }  
     
     printf( "Done adding image to audio data.\n" ) ;    
     
