@@ -16,7 +16,7 @@ On Ubuntu or Debian, you should be able to install those dependencies by typing 
 
 `sudo apt-get install build-essential libgd libmagic`
 
-After that, type `make pisstvpp` in the directory where PiSSTV resides in.
+After that, type `make pisstv` in the directory where PiSSTV resides in.
 
 ## Usage
 
