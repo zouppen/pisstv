@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall
 LDFLAGS=-lm -lmagic -lgd
 
-pisstvpp: pisstvpp.c
+pisstv: pisstv.c
 	$(CC) pisstv.c -o pisstv $(LDFLAGS)
 
 clean:
