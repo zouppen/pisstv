@@ -677,16 +677,16 @@ void buildaudio_pd120 () {
             by[x] = 128.0 + (0.003906 * ((-37.945 * (float)avgr) + (-74.494 * (float)avgg) + (112.439 * (float)avgb)));
 
         }
-        
+// XXX: Dayton Paper says "odd then even" but "even then odd" is the "de facto standard"
 // begin PD 120 code
 // TIMING SEQUENCE
 // Note: two complete lines are shown.
 // (1) Sync pulse 20ms 1200hz
 // (2) Porch  2.080ms 1500hz
-// (3) Y scan (from odd line)
+// (3) Y scan (from even line)
 // (4) R-Y scan averaged for two lines
 // (5) B-Y averaged for two lines
-// (6) Y scan (from even line)
+// (6) Y scan (from odd line)
 // Repeat until correct number of lines are transmitted for sub-mode.
   
 
@@ -695,9 +695,9 @@ void buildaudio_pd120 () {
         //porch 
         playtone( 1500 , 2080 ) ;
 	    
-        //(3) y scan, odd, 121.6s total, 640 points, 190us per pixel
+        //(3) y scan, even, 121.6s total, 640 points, 190us per pixel
         for ( k = 0; k < 640; k++ ) {
-                playtone( toneval_yuv( y2[k] ) , 190 ) ;
+                playtone( toneval_yuv( y1[k] ) , 190 ) ;
         }
 
         //(4) R-Y scan, 121.6ms total, 640 points, 190us per pixel
@@ -709,9 +709,9 @@ void buildaudio_pd120 () {
         for ( k = 0; k < 640; k++) {
             playtone( toneval_yuv( by[k] ) , 190);
         }
-  	//(6) y scan, even, 121.6ms total, 640 points, 190us per pixel
+        //(6) y scan, odd, 121.6ms total, 640 points, 190us per pixel
         for ( k = 0; k < 640; k++ ) {
-            playtone( toneval_yuv( y1[k] ) , 190 ) ;
+            playtone( toneval_yuv( y2[k] ) , 190 ) ;
         }
     }  
 
