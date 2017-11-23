@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
         case 8: //Robot 36
             buildaudio_r36();
         case 95: //PD 120
-            buildaudio_p120();
+            buildaudio_pd120();
             break;      break;
 		    
         default:
