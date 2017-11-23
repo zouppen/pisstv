@@ -632,8 +632,8 @@ void buildaudio_r36 () {
 // addvistrailer -- Add tones for VIS trailer to audio stream.
 //                  More calls to playtone(). 
 
-//Builds audio scan data for the Robot 36.
-//Applicable to only Robot 36.
+//Builds audio scan data for the PD 120.
+//Applicable to only PD 120.
 void buildaudio_pd120 () {
 
     uint16_t x , y , k ;
