@@ -1,4 +1,4 @@
-// PiSSTV
+// PiSSTVpp
 
 // 2013 Robert Marshall KI4MCW
 // 2014 Gerrit Polder, PA3BYA fixed header. 
@@ -126,7 +126,6 @@ int main(int argc, char *argv[]) {
     else if ( strcmp(protocol,"r36") == 0) {
         g_protocol = 8; //Robot 36
     }
-	 }
     else if ( strcmp(protocol,"pd120") == 0) {
         g_protocol = 95; //PD 120
     }
@@ -230,10 +229,10 @@ int main(int argc, char *argv[]) {
             break;
         case 8: //Robot 36
             buildaudio_r36();
+            break;
         case 95: //PD 120
             buildaudio_pd120();
-            break;      break;
-		    
+            break;
         default:
             printf("Something went horribly wrong: unknown protocol while building audio!\n");
             exit(2);
@@ -566,23 +565,23 @@ void buildaudio_r36 () {
 
         }
         
-        //begin robot 36 code
+//begin robot 36 code
 // TIMING SEQUENCE
 // (1) Sync pulse 9.0ms 1200hz
 // (2) Sync porch 3.0ms 1500hz
 // (3) Y scan 88.0ms
-// (4) “Even” separator pulse 4.5ms 1500hz
+// (4) "Even" separator pulse 4.5ms 1500hz
 // (5) Porch 1.5ms 1900hz
 // (6) R-Y scan  44ms
 // (7) Sync pulse 9.0ms 1200hz
 // (8) Sync porch 3.0ms 1500hz
 // (9) Y scan 88.0ms
-// (10) “Odd” separator pulse 4.5ms 2300hz
+// (10) "Odd" separator pulse 4.5ms 2300hz
 // (11) Porch 1.5ms 1900hz
 // (12) B-Y scan  44ms
 // Repeat the sequence above for 240 lines
 
-	 //even lines    
+        //even lines    
         //sync
         playtone( 1200 , 9000 ) ;
         //porch 
@@ -622,7 +621,7 @@ void buildaudio_r36 () {
         //B-Y scan, 44ms total, 320 points, 137.5us per pixel
         for ( k = 0; k < 320; k++) {
             playtone( toneval_yuv( by[k] ) , 137.5);
-}
+        }
   
     }  // end for y
     
@@ -630,8 +629,11 @@ void buildaudio_r36 () {
     
 }  // end buildaudio_r36
 
-//Builds audio scan data for the PD 120.
-//Applicable to only PD 120.
+// addvistrailer -- Add tones for VIS trailer to audio stream.
+//                  More calls to playtone(). 
+
+//Builds audio scan data for the Robot 36.
+//Applicable to only Robot 36.
 void buildaudio_pd120 () {
 
     uint16_t x , y , k ;
@@ -664,8 +666,7 @@ void buildaudio_pd120 () {
             avgg = (uint8_t)( ((uint16_t)g1 + (uint16_t)g2) / 2 );
 
             avgb = (uint8_t)( ((uint16_t)b1 + (uint16_t)b2) / 2 );
-             
-            //For PD120 ???
+
             //Y value of even lines 
             y1[x] = 16.0 + (0.003906 * ((65.738 * (float)r1) + (129.057 * (float)g1) + (25.064 * (float)b1)));
             //Y value of odd lines
@@ -677,7 +678,7 @@ void buildaudio_pd120 () {
 
         }
         
-        //begin PD 120 code
+// begin PD 120 code
 // TIMING SEQUENCE
 // Note: two complete lines are shown.
 // (1) Sync pulse 20ms 1200hz
@@ -688,6 +689,7 @@ void buildaudio_pd120 () {
 // (6) Y scan (from even line)
 // Repeat until correct number of lines are transmitted for sub-mode.
   
+
         // (1)sync pulse
         playtone( 1200 , 20000 ) ;
         //porch 
@@ -712,13 +714,11 @@ void buildaudio_pd120 () {
             playtone( toneval_yuv( y1[k] ) , 190 ) ;
         }
     }  
-    
+
     printf( "Done adding image to audio data.\n" ) ;    
     
 }  // end buildaudio_pd120
 
-// addvistrailer -- Add tones for VIS trailer to audio stream.
-//                  More calls to playtone(). 
 
 void addvistrailer () {
     printf( "Adding VIS trailer to audio data.\n" ) ;
