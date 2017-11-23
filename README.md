@@ -5,7 +5,7 @@ Its intended for use by ham radio amateurs.
 
 ## Compiling
 
-To compile PiSSTVpp, you should download this repository and also have:
+To compile PiSSTV, you should download this repository and also have:
 
 * gcc
 * libgd
@@ -34,7 +34,7 @@ Supported protocols and their respective options:
 * Robot 36: r36
 * PD 120: pd120
 
-`file` must be a PNG or JPG formatted image. Be advised that all modes except Robot 36 can only accept 320x256 sized images without cropping, whereas Robot 36 can only accept 320x240 sized images without cropping.
+`file` must be a PNG or JPG formatted image. Be advised that all modes except Robot 36 can only accept 320x256 sized images without cropping, whereas Robot 36 can only accept 320x240 sized images without cropping. The PD120 mode accept only 640x496 sized images.
 
 For instance, to create an audio file with the Scottie 2 protocol with a sampling rate of 22050Hz, and the input as a file `buzzece_qr.png` invoke:
 
@@ -43,8 +43,6 @@ For instance, to create an audio file with the Scottie 2 protocol with a samplin
 This will create `buzzece_qr.png.wav` in the working directory that encodes the ECE Buzz image in the Scottie 2 protocol.
 
 ## Other things
-
-There are some shell and Python scripts that carried over from the original repository by AgriVision (Gerrit Polder, PA3BYA). They should have been modified to work with the PiSSTVpp, but is not tested.
 
 pisstv: to convert the image to a soundfile.
 
