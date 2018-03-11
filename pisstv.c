@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
         g_protocol = 95; //PD 120
     }
     else {
-        printf("Unrecognized protocol option %s, defaulting to Martin 1...\n\n", protocol);
+        fprintf(stderr, "Unrecognized protocol option %s, defaulting to Martin 1...\n\n", protocol);
         g_protocol = 44;
     }
 
@@ -159,21 +159,21 @@ int main(int argc, char *argv[]) {
     g_samples = 0.0 ;
     g_fudge = 0.0 ;
 
-    printf( "Constants check:\n" ) ;
-    printf( "      rate = %d\n" , g_rate ) ;
-    printf( "  VIS code = %d\n" , g_protocol);
-    printf( "      BITS = %d\n" , BITS ) ;
-    printf( "    VOLPCT = %d\n" , VOLPCT ) ; 
-    printf( "     scale = %d\n" , g_scale ) ;
-    printf( "   us/samp = %f\n" , g_uspersample ) ;
-    printf( "   2p/rate = %f\n\n" , g_twopioverrate ) ;
+    fprintf(stderr, "Constants check:\n");
+    fprintf(stderr, "      rate = %d\n", g_rate);
+    fprintf(stderr, "  VIS code = %d\n", g_protocol);
+    fprintf(stderr, "      BITS = %d\n", BITS);
+    fprintf(stderr, "    VOLPCT = %d\n", VOLPCT);
+    fprintf(stderr, "     scale = %d\n", g_scale);
+    fprintf(stderr, "   us/samp = %f\n", g_uspersample);
+    fprintf(stderr, "   2p/rate = %f\n\n", g_twopioverrate);
     
     // set filenames    
     strncpy( inputfile , argv[optind] , strlen( argv[optind] ) ) ;
     ft = filetype( inputfile ) ;
     if ( ft == FILETYPE_ERR ) 
     {
-        printf( "Exiting.\n" ) ;
+        fprintf(stderr, "Exiting.\n");
         return 2 ;
     }
     
@@ -186,25 +186,25 @@ int main(int argc, char *argv[]) {
     strcat( outputfile , ".wav" ) ;
 #endif
     
-    printf( "Input  file is [%s].\n" , inputfile ) ;
-    printf( "Output file is [%s].\n" , outputfile ) ;
+    fprintf(stderr, "Input  file is [%s].\n", inputfile);
+    fprintf(stderr, "Output file is [%s].\n", outputfile);
     
     // prep
     
     g_imgfp = fopen( inputfile , "r" ) ;
     g_outfp = fopen( outputfile , "w" ) ;
-    printf( "FILE ptrs opened.\n" ) ;
+    fprintf(stderr, "FILE ptrs opened.\n");
     
     if ( ft == FILETYPE_JPG ) 
     { g_imgp = gdImageCreateFromJpeg( g_imgfp ) ; }
     else if ( ft == FILETYPE_PNG ) 
     { g_imgp = gdImageCreateFromPng( g_imgfp ) ; }
     else {
-        printf( "Some weird error!\n" ) ;
+        fprintf(stderr, "Some weird error!\n");
         return 3 ;
     }    
     
-    printf( "Image ptr opened.\n" ) ;
+    fprintf(stderr, "Image ptr opened.\n");
 
     // go!
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[]) {
             buildaudio_pd120();
             break;
         default:
-            printf("Something went horribly wrong: unknown protocol while building audio!\n");
+            fprintf(stderr, "Something went horribly wrong: unknown protocol while building audio!\n");
             exit(2);
             break;
     }
@@ -257,7 +257,7 @@ int main(int argc, char *argv[]) {
     // brag
     
     uint32_t endtime = time(NULL) ;
-    printf( "Created soundfile in %d seconds.\n" , ( endtime - starttime ) ) ;
+    fprintf(stderr, "Created soundfile in %d seconds.\n", ( endtime - starttime ));
     
     return 0 ;
 }
@@ -277,7 +277,7 @@ uint8_t filetype( char *filename ) {
     char m_str[ MAGIC_CNT + 2 ] ;
     uint8_t retval ;
     
-    printf( "  Checking filetype for file [%s]\n" , filename ) ;
+    fprintf(stderr, "  Checking filetype for file [%s]\n" , filename);
     
     retval = FILETYPE_ERR ;
     
@@ -288,20 +288,20 @@ uint8_t filetype( char *filename ) {
         
         if ( strncmp(m_str, MAGIC_JPG, MAGIC_CNT) == 0 )
         { 
-            printf( "  File is a JPEG image.\n" ) ;
+            fprintf(stderr, "  File is a JPEG image.\n");
             retval = FILETYPE_JPG ; 
         }
         
         else if ( strncmp(m_str, MAGIC_PNG, MAGIC_CNT) == 0 )
         { 
-            printf( "  File is a PNG image.\n" ) ;
+            fprintf(stderr, "  File is a PNG image.\n");
             retval = FILETYPE_PNG ; 
         }
         
         else
         {
-            printf( "  This file format is not supported!\n" ) ;
-            printf( "  Please use a JPEG or PNG file instead.\n" ) ;
+            fprintf(stderr, "  This file format is not supported!\n");
+            fprintf(stderr, "  Please use a JPEG or PNG file instead.\n");
         }    
     }
     
@@ -360,7 +360,7 @@ uint16_t toneval_yuv ( uint8_t colorval ) {
 //                 this just means lots of calls to playtone(). 
 
 void addvisheader() {
-    printf( "Adding VIS header to audio data.\n" ) ;
+    fprintf(stderr, "Adding VIS header to audio data.\n");
     
     // attention tones
     playtone( 1900 , 100000 ) ; // you forgot this one
@@ -400,7 +400,7 @@ void addvisheader() {
 
     // VIS stop
     playtone( 1200 ,  30000 ) ; 
-    printf( "Done adding VIS header to audio data.\n" ) ;
+    fprintf(stderr, "Done adding VIS header to audio data.\n");
         
 } // end addvisheader   
 
@@ -412,14 +412,13 @@ void buildaudio_m (double pixeltime) {
     uint32_t pixel ;
     uint8_t r[320], g[320], b[320] ;
     
-    printf( "Adding image to audio data.\n" ) ;
+    fprintf(stderr, "Adding image to audio data.\n");
     
     for ( y=0 ; y<256 ; y++ ) {
     
         // read image data
         for ( x=0 ; x<320 ; x++ ) {
             pixel = gdImageGetTrueColorPixel( g_imgp, x, y ) ;
-            //printf( "Got pixel.\n" ) ;
             
             // get color data
             r[x] = gdTrueColorGetRed( pixel ) ;
@@ -456,7 +455,7 @@ void buildaudio_m (double pixeltime) {
         
     }  // end for y
     
-    printf( "Done adding image to audio data.\n" ) ;    
+    fprintf(stderr,  "Done adding image to audio data.\n");    
     
 }  // end buildaudio_m   
 
@@ -468,7 +467,7 @@ void buildaudio_s (double pixeltime) {
     uint32_t pixel ;
     uint8_t r[320], g[320], b[320] ;
     
-    printf( "Adding image to audio data.\n" ) ;
+    fprintf(stderr, "Adding image to audio data.\n");
     
     //add starting sync pulse
     playtone( 1200 , 9000);
@@ -511,7 +510,7 @@ void buildaudio_s (double pixeltime) {
         
     }  // end for y
     
-    printf( "Done adding image to audio data.\n" ) ;    
+    fprintf(stderr, "Done adding image to audio data.\n");    
     
 }  // end buildaudio_s
 
@@ -525,7 +524,7 @@ void buildaudio_r36 () {
     uint8_t r1, g1, b1, r2, g2, b2, avgr, avgg, avgb;
     uint8_t y1[320], y2[320], ry[320], by[320];
 
-    printf( "Adding image to audio data.\n" ) ;
+    fprintf(stderr, "Adding image to audio data.\n");
     
     for ( y=0 ; y<240 ; y+=2 ) {
     
@@ -622,7 +621,7 @@ void buildaudio_r36 () {
   
     }  // end for y
     
-    printf( "Done adding image to audio data.\n" ) ;    
+    fprintf(stderr, "Done adding image to audio data.\n");    
     
 }  // end buildaudio_r36
 
@@ -638,7 +637,7 @@ void buildaudio_pd120 () {
     uint8_t r1, g1, b1, r2, g2, b2, avgr, avgg, avgb;
     uint8_t y1[640], y2[640], ry[640], by[640];
 
-    printf( "Adding image to audio data.\n" ) ;
+    fprintf(stderr, "Adding image to audio data.\n");
     
     for ( y=0 ; y<496 ; y+=2 ) {
     
@@ -712,20 +711,20 @@ void buildaudio_pd120 () {
         }
     }  
 
-    printf( "Done adding image to audio data.\n" ) ;    
+    fprintf(stderr, "Done adding image to audio data.\n");
     
 }  // end buildaudio_pd120
 
 
 void addvistrailer () {
-    printf( "Adding VIS trailer to audio data.\n" ) ;
+    fprintf(stderr, "Adding VIS trailer to audio data.\n");
     
     playtone( 2300 , 300000 ) ;
     playtone( 1200 ,  10000 ) ;
     playtone( 2300 , 100000 ) ;
     playtone( 1200 ,  30000 ) ;
     
-    printf( "Done adding VIS trailer to audio data.\n" ) ;    
+    fprintf(stderr, "Done adding VIS trailer to audio data.\n");
 }
 
 // writefile_aiff -- Save audio data to an AIFF file. Playback for
@@ -742,8 +741,8 @@ void writefile_aiff () {
     audiosize = 8 + ( 2 * g_samples ) ;      // header + 2bytes/samp
     totalsize = 4 + 8 + 18 + 8 + audiosize ;
 
-    printf( "Writing audio data to file.\n" ) ;
-    printf( "Got a total of [%d] samples.\n" , g_samples ) ;
+    fprintf(stderr, "Writing audio data to file.\n");
+    fprintf(stderr, "Got a total of [%d] samples.\n" , g_samples);
     
     // "form" chunk
     fputs( "FORM" , g_outfp ) ;
@@ -800,7 +799,7 @@ void writefile_aiff () {
         fputc( ( g_audio[i] & 0x00ff )      , g_outfp ) ;
     }
     
-    printf( "Done writing to audio file.\n" ) ;
+    fprintf(stderr, "Done writing to audio file.\n");
 }
 #endif 
 
@@ -819,8 +818,8 @@ void writefile_wav () {
     byterate   = g_rate * CHANS * BITS / 8 ;        // audio bytes / sec
     blockalign = CHANS * BITS / 8 ;               // total bytes / sample
     
-    printf( "Writing audio data to file.\n" ) ;
-    printf( "Got a total of [%d] samples.\n" , g_samples ) ;
+    fprintf(stderr, "Writing audio data to file.\n");
+    fprintf(stderr, "Got a total of [%d] samples.\n" , g_samples);
     
     // RIFF header 
     fputs( "RIFF" , g_outfp ) ;
@@ -883,7 +882,7 @@ void writefile_wav () {
     }
 
     // no trailer    
-    printf( "Done writing to audio file.\n" ) ;
+    fprintf(stderr, "Done writing to audio file.\n");
 }
 #endif
 
