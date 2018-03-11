@@ -138,10 +138,9 @@ int main(int argc, char *argv[]) {
     // locals
     uint32_t starttime = time(NULL) ;
     uint8_t ft ; 
-    char inputfile[255], outputfile[255] ;
+    char *inputfile, outputfile[255] ;
     
     // string hygeine
-    memset( inputfile  , 0 , 255 ) ;
     memset( outputfile , 0 , 255 ) ;
     
     // assign values to globals
@@ -168,8 +167,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "   us/samp = %f\n", g_uspersample);
     fprintf(stderr, "   2p/rate = %f\n\n", g_twopioverrate);
     
-    // set filenames    
-    strncpy( inputfile , argv[optind] , strlen( argv[optind] ) ) ;
+    // set filenames
+    inputfile = argv[optind];
     ft = filetype( inputfile ) ;
     if ( ft == FILETYPE_ERR ) 
     {
