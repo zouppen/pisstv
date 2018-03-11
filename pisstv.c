@@ -177,6 +177,14 @@ int main(int argc, char *argv[]) {
         strcpy(outputfile, "/dev/stdout");
         ft = FILETYPE_PNG;
     } else {
+        if (argc <= optind) {
+            fprintf(stderr,
+                    "Usage:\n\n"
+                    "%s [-rSAMPLERATE] [-pPROTOCOL] imagename\n"
+                    "%s [-rSAMPLERATE] [-pPROTOCOL] -s\n",
+		    argv[0], argv[0]);
+            return 2;
+        }
         inputfile = argv[optind];
         ft = filetype(inputfile);
         if (ft == FILETYPE_ERR) {
