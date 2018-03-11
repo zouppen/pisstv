@@ -362,9 +362,6 @@ uint16_t toneval_yuv ( uint8_t colorval ) {
 void addvisheader() {
     printf( "Adding VIS header to audio data.\n" ) ;
     
-    // bit of silence
-    playtone(    0 , 500000 ) ;   
-
     // attention tones
     playtone( 1900 , 100000 ) ; // you forgot this one
     playtone( 1500 , 100000 ) ;
@@ -727,9 +724,6 @@ void addvistrailer () {
     playtone( 1200 ,  10000 ) ;
     playtone( 2300 , 100000 ) ;
     playtone( 1200 ,  30000 ) ;
-    
-    // bit of silence
-    playtone(    0 , 500000 ) ;
     
     printf( "Done adding VIS trailer to audio data.\n" ) ;    
 }
