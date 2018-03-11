@@ -20,7 +20,13 @@ After that, type `make pisstv` in the directory where PiSSTV resides in.
 
 ## Usage
 
+Rendering from file:
+
 `./pisstv [-rSAMPLERATE] [-pPROTOCOL] imagename`
+
+Rendering from standard input to standard output:
+
+`./pisstv [-rSAMPLERATE] [-pPROTOCOL] -s`
 
 This command creates a WAVE file in the current working directory that encodes a PNG or JPG image into an SSTV audio signal. 
 
@@ -35,6 +41,10 @@ Supported protocols and their respective options:
 * PD 120: pd120
 
 `file` must be a PNG or JPG formatted image. Be advised that all modes except Robot 36 can only accept 320x256 sized images without cropping, whereas Robot 36 can only accept 320x240 sized images without cropping. The PD120 mode accept only 640x496 sized images.
+
+If `-s` is given then data is read from standard input and written to
+standard output instead of accessing files. In this case PNG is the
+only supported format.
 
 For instance, to create an audio file with the Scottie 2 protocol with a sampling rate of 22050Hz, and the input as a file `buzzece_qr.png` invoke:
 
@@ -61,8 +71,7 @@ A copy of the GPLv3 has been included in the repository.
 
 ## Credits
 
-AgriVision (Gerrit Polder)
-
-KI4MCW for SSTV
-
-Oliver Mattos and Oskar Weigl for PiFM
+* AgriVision (Gerrit Polder)
+* KI4MCW for SSTV
+* Oliver Mattos and Oskar Weigl for PiFM
+* Joel Lehtonen (OH6EYA) for stdin/stdout support

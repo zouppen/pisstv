@@ -20,7 +20,7 @@
 #include <tgmath.h>
 #include <magic.h>
 #include <unistd.h>
-
+#include <stdbool.h>
 
 // ================
 // macros/defines
@@ -96,7 +96,8 @@ int main(int argc, char *argv[]) {
 	int option;
 
     g_rate = RATE;
-    while ((option = getopt(argc, argv, "r:p:")) != -1) {
+    bool stdin = false;
+    while ((option = getopt(argc, argv, "sr:p:")) != -1) {
         switch (option) {
             case 'r':
                 g_rate = (atoi(optarg));
@@ -104,6 +105,9 @@ int main(int argc, char *argv[]) {
             case 'p':
                 protocol = optarg;
                 break;
+            case 's':
+		stdin = true;
+		break;
         }
     }
 
@@ -168,22 +172,26 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "   2p/rate = %f\n\n", g_twopioverrate);
     
     // set filenames
-    inputfile = argv[optind];
-    ft = filetype( inputfile ) ;
-    if ( ft == FILETYPE_ERR ) 
-    {
-        fprintf(stderr, "Exiting.\n");
-        return 2 ;
-    }
-    
-    strncpy( outputfile, inputfile , strlen( inputfile ) ) ;
-    
+    if (stdin) {
+        inputfile = "/dev/stdin";
+        strcpy(outputfile, "/dev/stdout");
+        ft = FILETYPE_PNG;
+    } else {
+        inputfile = argv[optind];
+        ft = filetype(inputfile);
+        if (ft == FILETYPE_ERR) {
+            fprintf(stderr, "Exiting.\n");
+            return 2 ;
+        }
+
+        strncpy( outputfile, inputfile , strlen( inputfile ) ) ;
 #ifdef AUDIO_AIFF    
-    strcat( outputfile , ".aiff" ) ;
+        strcat( outputfile , ".aiff" ) ;
 #endif
 #ifdef AUDIO_WAV    
-    strcat( outputfile , ".wav" ) ;
+        strcat( outputfile , ".wav" ) ;
 #endif
+    }
     
     fprintf(stderr, "Input  file is [%s].\n", inputfile);
     fprintf(stderr, "Output file is [%s].\n", outputfile);
